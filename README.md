@@ -13,3 +13,4 @@ NPC ID: npc_[名字拼音] (例: npc_rika, npc_kenji)
 对话/事件 ID: d_[相关NPC]_[内容]_[编号] (例: d_rika_festival_01)
 
 物品 ID: item_[类型]_[编号] (例: item_consumable_001)
+
