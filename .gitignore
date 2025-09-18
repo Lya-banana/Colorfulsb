@@ -97,3 +97,9 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# --- Custom Ignores for Your Project ---
+#
+# Ignore player save files folder.
+# This folder is user-generated and should not be in version control.
+/saves/
