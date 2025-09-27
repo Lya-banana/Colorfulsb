@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.IO;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI sanityText;
     public TextMeshProUGUI goldText;
+    
 
     // ========= 数据存储 =========
     private Dictionary<int, string> dailyMessages = new Dictionary<int, string>();
@@ -73,10 +75,21 @@ public class GameManager : MonoBehaviour
     {
         if (scene.name == "MainScene")
         {
-            // 每次返回主场景，都需要重新查找UI元素和重新绑定按钮
             FindAllUIElements();
             BindButtons();
-            StartNewDay();
+
+            // 【关键改动】检查是否是从读档加载的
+            if (SaveManager.Instance != null && SaveManager.Instance.isLoading)
+            {
+                // 如果是读档，我们不执行StartNewDay，而是直接更新UI
+                UpdateUI();
+                SaveManager.Instance.isLoading = false; // 重置标志位
+            }
+            else
+            {
+                // 否则，正常开始新的一天
+                StartNewDay();
+            }
         }
     }
 
@@ -89,32 +102,22 @@ public class GameManager : MonoBehaviour
         hpText = GameObject.Find("HPText")?.GetComponent<TextMeshProUGUI>();
         sanityText = GameObject.Find("SanityText")?.GetComponent<TextMeshProUGUI>();
         goldText = GameObject.Find("GoldText")?.GetComponent<TextMeshProUGUI>();
+       
     }
 
     // 集中绑定按钮事件
     void BindButtons()
     {
-        // 通过按钮名字查找并绑定对应的方法
+        // 行动按钮
         Button trainButton = GameObject.Find("TrainButton")?.GetComponent<Button>();
-        if (trainButton != null)
-        {
-            trainButton.onClick.RemoveAllListeners();
-            trainButton.onClick.AddListener(OnTrainButtonClicked);
-        }
+        if (trainButton != null) { trainButton.onClick.RemoveAllListeners(); trainButton.onClick.AddListener(OnTrainButtonClicked); }
 
         Button restButton = GameObject.Find("RestButton")?.GetComponent<Button>();
-        if (restButton != null)
-        {
-            restButton.onClick.RemoveAllListeners();
-            restButton.onClick.AddListener(OnRestButtonClicked);
-        }
+        if (restButton != null) { restButton.onClick.RemoveAllListeners(); restButton.onClick.AddListener(OnRestButtonClicked); }
 
         Button studyButton = GameObject.Find("StudyButton")?.GetComponent<Button>();
-        if (studyButton != null)
-        {
-            studyButton.onClick.RemoveAllListeners();
-            studyButton.onClick.AddListener(OnStudyButtonClicked);
-        }
+        if (studyButton != null) { studyButton.onClick.RemoveAllListeners(); studyButton.onClick.AddListener(OnStudyButtonClicked); }
+
     }
 
 
@@ -264,5 +267,30 @@ public class GameManager : MonoBehaviour
 #endif
         }
     }
+
+    // 在 GameManager.cs 中添加这两个方法
+    public GameData GetGameDataForSave()
+    {
+        GameData data = new GameData();
+        data.currentDay = this.currentDay;
+        data.hp = this.hp;
+        data.sanity = this.sanity;
+        data.gold = this.gold;
+        data.actionPoints = this.actionPoints;
+        data.saveTime = System.DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+        return data;
+    }
+
+    public void ApplyGameDataFromLoad(GameData data)
+    {
+        this.currentDay = data.currentDay;
+        this.hp = data.hp;
+        this.sanity = data.sanity;
+        this.gold = data.gold;
+        this.actionPoints = data.actionPoints;
+    }
+
+    // 修改你的 OnSceneLoaded 方法
+    
 }
 
